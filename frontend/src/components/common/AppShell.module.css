@@ -56,8 +56,43 @@
   border-radius: var(--radius-sm);
 }
 
-.langToggle {
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
   margin-left: auto;
+}
+
+.userArea {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.userEmail {
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.authBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  padding: var(--space-xs) var(--space-sm);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.authBtn:hover {
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+.langToggle {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text-secondary);
@@ -110,5 +145,9 @@
 
   .navOpen {
     display: flex;
+  }
+
+  .userEmail {
+    display: none;
   }
 }

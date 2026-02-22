@@ -1,13 +1,20 @@
 import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
+
+import { useAuthStore } from "@/stores/auth";
 
 import styles from "./AppShell.module.css";
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { t, i18n } = useTranslation();
   const location = useLocation();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const token = useAuthStore((s) => s.token);
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
 
   const toggleLang = () => {
     const next = i18n.language === "pt-BR" ? "en" : "pt-BR";
@@ -16,6 +23,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const navLinkClass = (path: string) =>
     location.pathname.startsWith(path) ? styles.active : "";
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
   return (
     <div className={styles.shell}>
@@ -53,9 +65,23 @@ export function AppShell({ children }: { children: ReactNode }) {
             {t("nav.investigations")}
           </Link>
         </nav>
-        <button onClick={toggleLang} className={styles.langToggle}>
-          {i18n.language === "pt-BR" ? "EN" : "PT"}
-        </button>
+        <div className={styles.headerActions}>
+          {token ? (
+            <div className={styles.userArea}>
+              {user && <span className={styles.userEmail}>{user.email}</span>}
+              <button onClick={handleLogout} className={styles.authBtn}>
+                {t("nav.logout")}
+              </button>
+            </div>
+          ) : (
+            <Link to="/login" className={styles.authBtn}>
+              {t("nav.login")}
+            </Link>
+          )}
+          <button onClick={toggleLang} className={styles.langToggle}>
+            {i18n.language === "pt-BR" ? "EN" : "PT"}
+          </button>
+        </div>
       </header>
       <main className={styles.main}>{children}</main>
       <footer className={styles.footer}>

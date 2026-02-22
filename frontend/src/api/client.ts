@@ -1,4 +1,5 @@
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
+const STORAGE_KEY = "icarus_auth";
 
 export class ApiError extends Error {
   constructor(
@@ -10,12 +11,23 @@ export class ApiError extends Error {
   }
 }
 
+function getAuthHeaders(): Record<string, string> {
+  try {
+    const token = localStorage.getItem(STORAGE_KEY);
+    if (token) return { Authorization: `Bearer ${token}` };
+  } catch {
+    // localStorage unavailable
+  }
+  return {};
+}
+
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const url = `${API_BASE}${path}`;
   const response = await fetch(url, {
     ...init,
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeaders(),
       ...init?.headers,
     },
   });
@@ -266,7 +278,7 @@ export function generateShareLink(
 
 export function exportInvestigation(investigationId: string): Promise<Blob> {
   const url = `${API_BASE}/api/v1/investigations/${encodeURIComponent(investigationId)}/export`;
-  return fetch(url).then((res) => {
+  return fetch(url, { headers: getAuthHeaders() }).then((res) => {
     if (!res.ok) throw new ApiError(res.status, `API error: ${res.statusText}`);
     return res.blob();
   });

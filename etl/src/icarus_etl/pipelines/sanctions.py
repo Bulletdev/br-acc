@@ -60,7 +60,7 @@ class SanctionsPipeline(Pipeline):
             return ""
         for fmt in ("%d/%m/%Y", "%Y-%m-%d"):
             try:
-                return pd.to_datetime(value, format=fmt).strftime("%Y-%m-%d")
+                return str(pd.to_datetime(value, format=fmt).strftime("%Y-%m-%d"))
             except ValueError:
                 continue
         return value

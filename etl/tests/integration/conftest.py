@@ -1,13 +1,28 @@
-from collections.abc import Generator
+from __future__ import annotations
+
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
-from neo4j import Driver, GraphDatabase
-from testcontainers.neo4j import Neo4jContainer
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
+try:
+    from neo4j import Driver, GraphDatabase
+    from testcontainers.neo4j import Neo4jContainer
+
+    HAS_TESTCONTAINERS = True
+except ImportError:
+    HAS_TESTCONTAINERS = False
+    Neo4jContainer = None  # type: ignore[assignment,misc]
+    Driver = None  # type: ignore[assignment,misc]
 
 
 @pytest.fixture(scope="session")
 def neo4j_container() -> Generator[Neo4jContainer]:
+    if not HAS_TESTCONTAINERS:
+        pytest.skip("testcontainers not installed")
     container = Neo4jContainer("neo4j:5-community")
     container.start()
     yield container
