@@ -632,7 +632,11 @@ def test_investigation_update_coalesce_includes_all_entity_id_fields() -> None:
     finally:
         CypherLoader.clear_cache()
 
-    required_fields = ["e.cpf", "e.cnpj", "e.contract_id", "e.sanction_id", "e.amendment_id"]
+    required_fields = [
+        "e.cpf", "e.cnpj", "e.contract_id", "e.sanction_id", "e.amendment_id",
+        "e.cnes_code", "e.finance_id", "e.embargo_id", "e.school_id",
+        "e.convenio_id", "e.stats_id",
+    ]
     for field in required_fields:
         assert field in cypher, (
             f"investigation_update.cypher coalesce chain missing {field}"

@@ -75,8 +75,8 @@ CREATE INDEX election_year IF NOT EXISTS
 CREATE INDEX election_composite IF NOT EXISTS
   FOR (e:Election) ON (e.year, e.cargo, e.uf, e.municipio);
 
-CREATE INDEX amendment_object IF NOT EXISTS
-  FOR (a:Amendment) ON (a.object);
+CREATE INDEX amendment_function IF NOT EXISTS
+  FOR (a:Amendment) ON (a.function);
 
 CREATE INDEX company_cnae_principal IF NOT EXISTS
   FOR (c:Company) ON (c.cnae_principal);
@@ -90,8 +90,8 @@ CREATE INDEX contract_date IF NOT EXISTS
 CREATE INDEX sanction_date_start IF NOT EXISTS
   FOR (s:Sanction) ON (s.date_start);
 
-CREATE INDEX amendment_date IF NOT EXISTS
-  FOR (a:Amendment) ON (a.date);
+CREATE INDEX amendment_value_committed IF NOT EXISTS
+  FOR (a:Amendment) ON (a.value_committed);
 
 // ── Finance Indexes ───────────────────────────────────
 CREATE INDEX finance_type IF NOT EXISTS
@@ -131,8 +131,8 @@ CREATE INDEX education_name IF NOT EXISTS
   FOR (e:Education) ON (e.name);
 
 // ── Convenio Indexes ────────────────────────────────────
-CREATE INDEX convenio_date IF NOT EXISTS
-  FOR (c:Convenio) ON (c.date);
+CREATE INDEX convenio_date_published IF NOT EXISTS
+  FOR (c:Convenio) ON (c.date_published);
 
 // ── LaborStats Indexes ──────────────────────────────────
 CREATE INDEX laborstats_uf IF NOT EXISTS
@@ -143,8 +143,8 @@ CREATE INDEX laborstats_cnae_subclass IF NOT EXISTS
 
 // ── Fulltext Search Index ───────────────────────────────
 CREATE FULLTEXT INDEX entity_search IF NOT EXISTS
-  FOR (n:Person|Company|Health)
-  ON EACH [n.name, n.razao_social, n.cpf, n.cnpj, n.cnes_code];
+  FOR (n:Person|Company|Health|Education|Contract|Amendment|Convenio|Embargo|PublicOffice)
+  ON EACH [n.name, n.razao_social, n.cpf, n.cnpj, n.cnes_code, n.object, n.contracting_org, n.convenente, n.infraction, n.org, n.function];
 
 // ── User Constraints ────────────────────────────────────
 CREATE CONSTRAINT user_email_unique IF NOT EXISTS

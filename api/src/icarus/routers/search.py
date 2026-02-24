@@ -18,6 +18,12 @@ def _extract_name(node: Any, labels: list[str]) -> str:
     entity_type = labels[0].lower() if labels else ""
     if entity_type == "company":
         return str(props.get("razao_social", props.get("name", props.get("nome_fantasia", ""))))
+    if entity_type in ("contract", "amendment", "convenio"):
+        return str(props.get("object", props.get("function", props.get("name", ""))))
+    if entity_type == "embargo":
+        return str(props.get("infraction", props.get("name", "")))
+    if entity_type == "publicoffice":
+        return str(props.get("org", props.get("name", "")))
     return str(props.get("name", ""))
 
 

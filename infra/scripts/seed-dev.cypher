@@ -78,52 +78,59 @@ CREATE (p5)-[:SOCIO_DE]->(co5);
 
 // ── Contracts ───────────────────────────────────────────
 CREATE (c1:Contract {
-  id: 'CTR-001', object: 'Construcao de ponte municipal',
+  contract_id: 'CTR-001', object: 'Construcao de ponte municipal',
   value: 2500000.0, contracting_org: 'PREFEITURA SAO PAULO', date: '2024-03-15'
 });
 CREATE (c2:Contract {
-  id: 'CTR-002', object: 'Manutencao de vias publicas',
+  contract_id: 'CTR-002', object: 'Manutencao de vias publicas',
   value: 800000.0, contracting_org: 'PREFEITURA SAO PAULO', date: '2024-06-01'
 });
 CREATE (c3:Contract {
-  id: 'CTR-003', object: 'Servicos de limpeza hospitalar',
+  contract_id: 'CTR-003', object: 'Servicos de limpeza hospitalar',
   value: 1200000.0, contracting_org: 'PREFEITURA RIO DE JANEIRO', date: '2024-01-10'
 });
 CREATE (c4:Contract {
-  id: 'CTR-004', object: 'Sistema de gestao publica',
+  contract_id: 'CTR-004', object: 'Sistema de gestao publica',
   value: 3500000.0, contracting_org: 'PREFEITURA BELO HORIZONTE', date: '2024-07-20'
 });
 CREATE (c5:Contract {
-  id: 'CTR-005', object: 'Consultoria em licitacoes',
+  contract_id: 'CTR-005', object: 'Consultoria em licitacoes',
   value: 450000.0, contracting_org: 'PREFEITURA SAO PAULO', date: '2024-09-05'
 });
 CREATE (c6:Contract {
-  id: 'CTR-006', object: 'Reforma de escola municipal',
+  contract_id: 'CTR-006', object: 'Reforma de escola municipal',
   value: 1800000.0, contracting_org: 'PREFEITURA SAO PAULO', date: '2024-04-12'
 });
 CREATE (c7:Contract {
-  id: 'CTR-007', object: 'Pavimentacao de estradas rurais',
+  contract_id: 'CTR-007', object: 'Pavimentacao de estradas rurais',
   value: 950000.0, contracting_org: 'PREFEITURA SAO PAULO', date: '2024-11-01'
 });
 CREATE (c8:Contract {
-  id: 'CTR-008', object: 'Fornecimento de equipamentos medicos',
+  contract_id: 'CTR-008', object: 'Fornecimento de equipamentos medicos',
   value: 600000.0, contracting_org: 'PREFEITURA RIO DE JANEIRO', date: '2024-02-28'
 });
 CREATE (c9:Contract {
-  id: 'CTR-009', object: 'Servicos de TI - datacenter',
+  contract_id: 'CTR-009', object: 'Servicos de TI - datacenter',
   value: 2200000.0, contracting_org: 'PREFEITURA SAO PAULO', date: '2024-08-15'
 });
 CREATE (c10:Contract {
-  id: 'CTR-010', object: 'Auditoria contabil publica',
+  contract_id: 'CTR-010', object: 'Auditoria contabil publica',
   value: 350000.0, contracting_org: 'PREFEITURA SAO PAULO', date: '2024-10-01'
+});
+
+// ── Amendment (for self-dealing pattern) ──────────────────
+CREATE (a1:Amendment {
+  amendment_id: 'EMD-001', type: 'Individual', function: 'Urbanismo',
+  municipality: 'SAO PAULO', uf: 'SP',
+  value_committed: 2500000.0, value_paid: 2400000.0
 });
 
 // ── Pattern p01: Self-dealing amendment ─────────────────
 // CARLOS authored amendment → SILVA CONSTRUCOES (wife's company) won contract
-MATCH (p1:Person {cpf: '11111111111'}), (c1:Contract {id: 'CTR-001'})
-CREATE (p1)-[:AUTOR_EMENDA]->(c1);
+MATCH (p1:Person {cpf: '11111111111'}), (a1:Amendment {amendment_id: 'EMD-001'})
+CREATE (p1)-[:AUTOR_EMENDA]->(a1);
 
-MATCH (co1:Company {cnpj: '11222333000181'}), (c1:Contract {id: 'CTR-001'})
+MATCH (co1:Company {cnpj: '11222333000181'}), (c1:Contract {contract_id: 'CTR-001'})
 CREATE (co1)-[:VENCEU]->(c1);
 
 // ── Pattern p05: Patrimony incompatibility ──────────────
@@ -141,75 +148,75 @@ CREATE (p4)-[:SOCIO_DE]->(co4);
 
 // ── Pattern p06: Sanctioned still receiving ─────────────
 CREATE (s1:Sanction {
-  id: 'SAN-001', type: 'CEIS', date_start: '2023-01-01',
+  sanction_id: 'SAN-001', type: 'CEIS', date_start: '2023-01-01',
   date_end: '2025-12-31', reason: 'Irregularidade em licitacao',
   source: 'CEIS'
 });
 
-MATCH (co3:Company {cnpj: '33444555000103'}), (s1:Sanction {id: 'SAN-001'})
+MATCH (co3:Company {cnpj: '33444555000103'}), (s1:Sanction {sanction_id: 'SAN-001'})
 CREATE (co3)-[:SANCIONADA]->(s1);
 
 // PEREIRA SERVICOS won contract AFTER sanction date
-MATCH (co3:Company {cnpj: '33444555000103'}), (c3:Contract {id: 'CTR-003'})
+MATCH (co3:Company {cnpj: '33444555000103'}), (c3:Contract {contract_id: 'CTR-003'})
 CREATE (co3)-[:VENCEU]->(c3);
 
-MATCH (co3:Company {cnpj: '33444555000103'}), (c8:Contract {id: 'CTR-008'})
+MATCH (co3:Company {cnpj: '33444555000103'}), (c8:Contract {contract_id: 'CTR-008'})
 CREATE (co3)-[:VENCEU]->(c8);
 
 // ── Pattern p10: Donation-contract loop ─────────────────
 // FERREIRA TECNOLOGIA donated to ROBERTO's campaign, then won contract from his org
 CREATE (e1:Election {
-  id: 'ELE-001', year: 2022, cargo: 'PREFEITO', uf: 'MG', municipio: 'BELO HORIZONTE'
+  election_id: 'ELE-001', year: 2022, cargo: 'PREFEITO', uf: 'MG', municipio: 'BELO HORIZONTE'
 });
 
-MATCH (p5:Person {cpf: '55555555555'}), (e1:Election {id: 'ELE-001'})
+MATCH (p5:Person {cpf: '55555555555'}), (e1:Election {election_id: 'ELE-001'})
 CREATE (p5)-[:CANDIDATO_EM]->(e1);
 
 MATCH (co4:Company {cnpj: '44555666000114'}), (p5:Person {cpf: '55555555555'})
-CREATE (co4)-[:DOOU {value: 100000.0, year: 2022}]->(p5);
+CREATE (co4)-[:DOOU {valor: 100000.0, year: 2022}]->(p5);
 
-MATCH (co4:Company {cnpj: '44555666000114'}), (c4:Contract {id: 'CTR-004'})
+MATCH (co4:Company {cnpj: '44555666000114'}), (c4:Contract {contract_id: 'CTR-004'})
 CREATE (co4)-[:VENCEU]->(c4);
 
 // ── Pattern p12: Contract concentration ─────────────────
 // SILVA CONSTRUCOES dominates SAO PAULO contracts (>30% share)
-MATCH (co1:Company {cnpj: '11222333000181'}), (c2:Contract {id: 'CTR-002'})
+MATCH (co1:Company {cnpj: '11222333000181'}), (c2:Contract {contract_id: 'CTR-002'})
 CREATE (co1)-[:VENCEU]->(c2);
 
-MATCH (co1:Company {cnpj: '11222333000181'}), (c5:Contract {id: 'CTR-005'})
+MATCH (co1:Company {cnpj: '11222333000181'}), (c5:Contract {contract_id: 'CTR-005'})
 CREATE (co1)-[:VENCEU]->(c5);
 
-MATCH (co1:Company {cnpj: '11222333000181'}), (c6:Contract {id: 'CTR-006'})
+MATCH (co1:Company {cnpj: '11222333000181'}), (c6:Contract {contract_id: 'CTR-006'})
 CREATE (co1)-[:VENCEU]->(c6);
 
-MATCH (co1:Company {cnpj: '11222333000181'}), (c7:Contract {id: 'CTR-007'})
+MATCH (co1:Company {cnpj: '11222333000181'}), (c7:Contract {contract_id: 'CTR-007'})
 CREATE (co1)-[:VENCEU]->(c7);
 
-MATCH (co1:Company {cnpj: '11222333000181'}), (c9:Contract {id: 'CTR-009'})
+MATCH (co1:Company {cnpj: '11222333000181'}), (c9:Contract {contract_id: 'CTR-009'})
 CREATE (co1)-[:VENCEU]->(c9);
 
-MATCH (co1:Company {cnpj: '11222333000181'}), (c10:Contract {id: 'CTR-010'})
+MATCH (co1:Company {cnpj: '11222333000181'}), (c10:Contract {contract_id: 'CTR-010'})
 CREATE (co1)-[:VENCEU]->(c10);
 
 // COSTA ENGENHARIA gets a few SAO PAULO contracts (for comparison)
-MATCH (co2:Company {cnpj: '22333444000192'}), (c2:Contract {id: 'CTR-002'})
+MATCH (co2:Company {cnpj: '22333444000192'}), (c2:Contract {contract_id: 'CTR-002'})
 CREATE (co2)-[:VENCEU]->(c2);
 
 // SANTOS CONSULTORIA gets one SAO PAULO contract
-MATCH (co5:Company {cnpj: '55666777000125'}), (c5:Contract {id: 'CTR-005'})
+MATCH (co5:Company {cnpj: '55666777000125'}), (c5:Contract {contract_id: 'CTR-005'})
 CREATE (co5)-[:VENCEU]->(c5);
 
 // ── Public Offices ──────────────────────────────────────
 CREATE (po1:PublicOffice {
-  id: 'PO-001', name: 'Secretario de Obras', org: 'PREFEITURA SAO PAULO',
+  cpf: '11111111111', name: 'Secretario de Obras', org: 'PREFEITURA SAO PAULO',
   salary: 25000.0
 });
 
-MATCH (p1:Person {cpf: '11111111111'}), (po1:PublicOffice {id: 'PO-001'})
+MATCH (p1:Person {cpf: '11111111111'}), (po1:PublicOffice {cpf: '11111111111'})
 CREATE (p1)-[:RECEBEU_SALARIO]->(po1);
 
 // ── Summary ─────────────────────────────────────────────
-// Nodes: 5 Person, 5 Company, 10 Contract, 1 Sanction, 1 Election, 1 PublicOffice
+// Nodes: 5 Person, 5 Company, 10 Contract, 1 Amendment, 1 Sanction, 1 Election, 1 PublicOffice
 // Relationships: 2 family, 3 SOCIO_DE, 1 AUTOR_EMENDA, 9 VENCEU,
 //   1 SANCIONADA, 1 CANDIDATO_EM, 1 DOOU, 1 RECEBEU_SALARIO
 // All 5 patterns should return results with this data
