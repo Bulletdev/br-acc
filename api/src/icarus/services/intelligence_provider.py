@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 from collections.abc import Awaitable, Callable, Mapping
 from importlib import import_module
+from importlib.util import find_spec
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from fastapi import HTTPException
@@ -323,10 +324,19 @@ class AdvancedIntelligenceProvider:
 _PROVIDER_CACHE: dict[str, IntelligenceProvider] = {}
 
 
+def _advanced_modules_available() -> bool:
+    return (
+        find_spec("icarus.services.pattern_service") is not None
+        and find_spec("icarus.services.score_service") is not None
+    )
+
+
 def get_default_provider() -> IntelligenceProvider:
     tier = settings.product_tier.strip().lower()
     if tier not in {"community", "advanced"}:
         tier = "advanced"
+    if tier == "advanced" and not _advanced_modules_available():
+        tier = "community"
     cached = _PROVIDER_CACHE.get(tier)
     if cached is not None:
         return cached
